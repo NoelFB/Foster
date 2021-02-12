@@ -354,6 +354,8 @@ namespace Foster.Framework
             return rect;
         }
 
+        public static implicit operator RectInt((int X, int Y, int Width, int Height) tuple) => new RectInt(tuple.X, tuple.Y, tuple.Width, tuple.Height);
+
         public static bool operator ==(RectInt a, RectInt b)
         {
             return a.X == b.X && a.Y == b.Y && a.Width == b.Width && a.Height == b.Height;

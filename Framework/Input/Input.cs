@@ -139,6 +139,12 @@ namespace Foster.Framework
             nextState.Mouse.wheelValue = new Vector2(offsetX, offsetY);
         }
 
+        protected void OnMouseMotion(float x, float y)
+        {
+            nextState.Mouse.mousePosition.X = (int) x;
+            nextState.Mouse.mousePosition.Y = (int) y;
+        }
+
         protected void OnJoystickConnect(uint index, string name, uint buttonCount, uint axisCount, bool isGamepad)
         {
             if (index < InputState.MaxControllers)

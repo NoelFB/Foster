@@ -86,6 +86,10 @@ namespace Foster.SDL2
             {
                 OnMouseWheel(e.wheel.x, e.wheel.y);
             }
+            else if (e.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
+            {
+                OnMouseMotion(e.motion.x, e.motion.y);
+            }
             // joystick
             else if (e.type == SDL.SDL_EventType.SDL_JOYDEVICEADDED)
             {

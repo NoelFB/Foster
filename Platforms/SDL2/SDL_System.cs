@@ -130,6 +130,7 @@ namespace Foster.SDL2
                     case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
                     case SDL.SDL_EventType.SDL_MOUSEWHEEL:
+                    case SDL.SDL_EventType.SDL_MOUSEMOTION:
                     case SDL.SDL_EventType.SDL_JOYAXISMOTION:
                     case SDL.SDL_EventType.SDL_JOYBALLMOTION:
                     case SDL.SDL_EventType.SDL_JOYHATMOTION:

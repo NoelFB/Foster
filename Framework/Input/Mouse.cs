@@ -15,6 +15,7 @@ namespace Foster.Framework
         internal readonly bool[] released = new bool[MaxButtons];
         internal readonly long[] timestamp = new long[MaxButtons];
         internal Vector2 wheelValue;
+        internal Point2 mousePosition;
 
         public bool Pressed(MouseButtons button) => pressed[(int)button];
         public bool Down(MouseButtons button) => down[(int)button];
@@ -48,6 +49,7 @@ namespace Foster.Framework
         public bool MiddleReleased => released[(int)MouseButtons.Middle];
 
         public Vector2 Wheel => wheelValue;
+        public Point2 Position => mousePosition;
 
         internal void Copy(Mouse other)
         {
@@ -57,6 +59,7 @@ namespace Foster.Framework
             Array.Copy(other.timestamp, 0, timestamp, 0, MaxButtons);
 
             wheelValue = other.wheelValue;
+            mousePosition = other.mousePosition;
         }
 
         internal void Step()
@@ -65,6 +68,5 @@ namespace Foster.Framework
             Array.Fill(released, false);
             wheelValue = Vector2.Zero;
         }
-
     }
 }

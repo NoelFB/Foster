@@ -45,19 +45,19 @@ namespace Foster.Framework
 
         protected internal override void Startup()
         {
-            Log.Message($"{ApiName} {ApiVersion} ({DeviceName})");
+            Log.Info($"{ApiName} {ApiVersion} ({DeviceName})");
         }
 
         /// <summary>
         /// Clears the Color of the Target
         /// </summary>
-        public void Clear(RenderTarget target, Color color) => 
+        public void Clear(RenderTarget target, Color color) =>
             Clear(target, Framework.Clear.Color, color, 0, 0, new RectInt(0, 0, target.RenderWidth, target.RenderHeight));
 
         /// <summary>
         /// Clears the Target
         /// </summary>
-        public void Clear(RenderTarget target, Color color, float depth, int stencil) => 
+        public void Clear(RenderTarget target, Color color, float depth, int stencil) =>
             Clear(target, Framework.Clear.All, color, depth, stencil, new RectInt(0, 0, target.RenderWidth, target.RenderHeight));
 
         /// <summary>

@@ -72,7 +72,7 @@ namespace Foster.Framework
 
         protected internal override void Startup()
         {
-            Log.Message($"{ApiName} {ApiVersion}");
+            Log.Info($"{ApiName} {ApiVersion}");
         }
 
         /// <summary>

@@ -88,9 +88,9 @@ namespace Foster.Framework
             if (string.IsNullOrWhiteSpace(Name))
                 Name = title;
 
-            Log.Message($"Version: {Version}");
-            Log.Message($"Platform: {RuntimeInformation.OSDescription} ({RuntimeInformation.OSArchitecture})");
-            Log.Message($"Framework: {RuntimeInformation.FrameworkDescription}");
+            Log.Info($"Version: {Version}");
+            Log.Info($"Platform: {RuntimeInformation.OSDescription} ({RuntimeInformation.OSArchitecture})");
+            Log.Info($"Framework: {RuntimeInformation.FrameworkDescription}");
 
 #if DEBUG
             Launch();
@@ -261,7 +261,7 @@ namespace Foster.Framework
             primaryWindow = null;
             Exiting = false;
 
-            Log.Message("Exited");
+            Log.Info("Exited");
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Foster.Framework
 {
@@ -10,14 +11,19 @@ namespace Foster.Framework
         public string ApiName { get; protected set; } = "Unknown";
         public Version ApiVersion { get; protected set; } = new Version(0, 0, 0);
 
-        protected Audio() : base(400)
-        {
+        internal readonly AudioSourcePool AudioSourcePool = new AudioSourcePool();
 
+        internal abstract AudioSource.Platform CreateAudioSource(SoundEffect soundEffect);
+        internal abstract SoundEffect.Platform CreateSoundEffect(Stream stream);
+
+        protected Audio() : base(400) { }
+
+        protected internal sealed override void Update()
+        {
+            AudioSourcePool.Update();
         }
 
-        protected internal override void Startup()
-        {
-            Console.WriteLine($" - Audio {ApiName} {ApiVersion}");
-        }
+        public abstract void ProcessEvents();
+        public abstract void Suspend();
     }
 }

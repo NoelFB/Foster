@@ -1,23 +1,30 @@
 ﻿using System;
+using System.IO;
 
 namespace Foster.Framework
 {
     /// <summary>
     /// The Core Audio Module, used for playing sounds
     /// </summary>
-    public abstract class Audio : Module
+    public abstract class Audio : AppModule
     {
         public string ApiName { get; protected set; } = "Unknown";
         public Version ApiVersion { get; protected set; } = new Version(0, 0, 0);
 
-        protected Audio() : base(400)
-        {
+        internal readonly AudioSourcePool AudioSourcePool = new AudioSourcePool();
 
-        }
+        protected internal abstract AudioSource.Platform CreateAudioSource();
 
-        protected internal override void Startup()
+        protected Audio() : base(400) { }
+
+        /// <summary>
+        /// The Renderer this Audio Module implements
+        /// </summary>
+        public abstract Renderer Renderer { get; }
+
+        protected internal sealed override void Update()
         {
-            Console.WriteLine($" - Audio {ApiName} {ApiVersion}");
+            AudioSourcePool.Update();
         }
     }
 }

@@ -11,12 +11,13 @@ namespace Foster.SDL2
         private readonly IntPtr[] sdlCursors;
         private readonly IntPtr[] sdlJoysticks;
         private readonly IntPtr[] sdlGamepads;
+        private static int MaxGamepads = 64;
 
         public SDL_Input()
         {
             sdlCursors = new IntPtr[(int)SDL.SDL_SystemCursor.SDL_NUM_SYSTEM_CURSORS];
-            sdlJoysticks = new IntPtr[64];
-            sdlGamepads = new IntPtr[64];
+            sdlJoysticks = new IntPtr[MaxGamepads];
+            sdlGamepads = new IntPtr[MaxGamepads];
         }
 
         ~SDL_Input()
@@ -90,20 +91,22 @@ namespace Foster.SDL2
             else if (e.type == SDL.SDL_EventType.SDL_JOYDEVICEADDED)
             {
                 var index = e.jdevice.which;
-
-                if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
+                if (index >= 0)
                 {
-                    var ptr = sdlJoysticks[index] = SDL.SDL_JoystickOpen(index);
-                    var name = SDL.SDL_JoystickName(ptr);
-                    var buttonCount = SDL.SDL_JoystickNumButtons(ptr);
-                    var axisCount = SDL.SDL_JoystickNumAxes(ptr);
+                    if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
+                    {
+                        var ptr = sdlJoysticks[index] = SDL.SDL_JoystickOpen(index);
+                        var name = SDL.SDL_JoystickName(ptr);
+                        var buttonCount = SDL.SDL_JoystickNumButtons(ptr);
+                        var axisCount = SDL.SDL_JoystickNumAxes(ptr);
 
-                    OnJoystickConnect((uint)index, name, (uint)buttonCount, (uint)axisCount, false);
+                        OnJoystickConnect((uint)index, name, (uint)buttonCount, (uint)axisCount, false);
+                    }
                 }
             }
             else if (e.type == SDL.SDL_EventType.SDL_JOYDEVICEREMOVED)
             {
-                var index = e.jdevice.which;
+                var index = FindJoystickIndex(e.jdevice.which);
 
                 if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
                 {
@@ -116,23 +119,32 @@ namespace Foster.SDL2
             }
             else if (e.type == SDL.SDL_EventType.SDL_JOYBUTTONDOWN)
             {
-                var index = e.jbutton.which;
-                if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
-                    OnJoystickButtonDown((uint)index, e.jbutton.button);
+                var index = FindJoystickIndex(e.jbutton.which);
+                if (index >= 0)
+                {
+                    if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
+                        OnJoystickButtonDown((uint)index, e.jbutton.button);
+                }
             }
             else if (e.type == SDL.SDL_EventType.SDL_JOYBUTTONUP)
             {
-                var index = e.jbutton.which;
-                if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
-                    OnJoystickButtonUp((uint)index, e.jbutton.button);
+                var index = FindJoystickIndex(e.jbutton.which);
+                if (index >= 0)
+                {
+                    if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
+                        OnJoystickButtonUp((uint)index, e.jbutton.button);
+                }
             }
             else if (e.type == SDL.SDL_EventType.SDL_JOYAXISMOTION)
             {
-                var index = e.jaxis.which;
-                if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
+                var index = FindJoystickIndex(e.jaxis.which);
+                if (index >= 0)
                 {
-                    var value = Math.Max(-1f, Math.Min(1f, e.jaxis.axisValue / (float)short.MaxValue));
-                    OnJoystickAxis((uint)index, e.jaxis.axis, value);
+                    if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_FALSE)
+                    {
+                        var value = Math.Max(-1f, Math.Min(1f, e.jaxis.axisValue / (float)short.MaxValue));
+                        OnJoystickAxis((uint)index, e.jaxis.axis, value);
+                    }
                 }
             }
             // controller
@@ -145,34 +157,45 @@ namespace Foster.SDL2
             }
             else if (e.type == SDL.SDL_EventType.SDL_CONTROLLERDEVICEREMOVED)
             {
-                var index = e.cdevice.which;
-                OnJoystickDisconnect((uint)index);
+                var index = FindGamepadIndex(e.cdevice.which);
+                if (index >= 0)
+                {
+                    OnJoystickDisconnect((uint)index);
 
-                var ptr = sdlGamepads[index];
-                sdlGamepads[index] = IntPtr.Zero;
-                SDL.SDL_GameControllerClose(ptr);
+                    var ptr = sdlGamepads[index];
+                    sdlGamepads[index] = IntPtr.Zero;
+                    SDL.SDL_GameControllerClose(ptr);
+                }
             }
             else if (e.type == SDL.SDL_EventType.SDL_CONTROLLERBUTTONDOWN)
             {
-                var index = e.cbutton.which;
-                var button = GamepadButtonToEnum(e.cbutton.button);
-
-                OnGamepadButtonDown((uint)index, button);
+                var index = FindGamepadIndex(e.cbutton.which);
+                if (index >= 0)
+                {
+                    var button = GamepadButtonToEnum(e.cbutton.button);
+                    OnGamepadButtonDown((uint)index, button);
+                }
             }
             else if (e.type == SDL.SDL_EventType.SDL_CONTROLLERBUTTONUP)
             {
-                var index = e.cbutton.which;
-                var button = GamepadButtonToEnum(e.cbutton.button);
+                var index = FindGamepadIndex(e.cbutton.which);
+                if (index >= 0)
+                {
+                    var button = GamepadButtonToEnum(e.cbutton.button);
 
-                OnGamepadButtonUp((uint)index, button);
+                    OnGamepadButtonUp((uint)index, button);
+                }
             }
             else if (e.type == SDL.SDL_EventType.SDL_CONTROLLERAXISMOTION)
             {
-                var index = e.caxis.which;
-                var axis = GamepadAxisToEnum(e.caxis.axis);
-                var value = Math.Max(-1f, Math.Min(1f, e.caxis.axisValue / (float)short.MaxValue));
+                var index = FindGamepadIndex(e.caxis.which);
+                if (index >= 0)
+                {
+                    var axis = GamepadAxisToEnum(e.caxis.axis);
+                    var value = Math.Max(-1f, Math.Min(1f, e.caxis.axisValue / (float)short.MaxValue));
 
-                OnGamepadAxis((uint)index, axis, value);
+                    OnGamepadAxis((uint)index, axis, value);
+                }
             }
             // keys
             else if (e.type == SDL.SDL_EventType.SDL_KEYDOWN || e.type == SDL.SDL_EventType.SDL_KEYUP)
@@ -370,5 +393,37 @@ namespace Foster.SDL2
             { SDL.SDL_Keycode.SDLK_LGUI, Keys.LeftSuper },
             { SDL.SDL_Keycode.SDLK_RGUI, Keys.RightSuper },
         };
+
+        private int FindJoystickIndex(int joystickId)
+        {
+            for (int i = 0; i < MaxGamepads; i++)
+            {
+                if (sdlJoysticks[i] != IntPtr.Zero)
+                {
+                    if (SDL.SDL_JoystickInstanceID(sdlJoysticks[i]) == joystickId)
+                    {
+                        return i;
+                    }
+
+                }
+            }
+            return -1;
+        }
+
+        private int FindGamepadIndex(int gamepadId)
+        {
+            for (int i = 0; i < MaxGamepads; i++)
+            {
+                if (sdlGamepads[i] != IntPtr.Zero)
+                {
+                    var joystick = SDL.SDL_GameControllerGetJoystick(sdlGamepads[i]);
+                    if (SDL.SDL_JoystickInstanceID(joystick) == gamepadId)
+                    {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
     }
 }
